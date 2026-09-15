@@ -31,6 +31,6 @@ public class EmployeeController {
 
     @GetMapping
     public ResponseEntity<List<Employee>> getAllEmployees() {
-        return ResponseEntity.status(HttpStatus.CREATED).body(employees);
+        return ResponseEntity.ok(employees);
     }
 }
