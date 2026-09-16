@@ -4,6 +4,7 @@ import com.employee.api.model.Employee;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +73,22 @@ public class EmployeeController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Employee>> searchEmployeesByName(
+            @RequestParam String name) {
+
+        List<Employee> matchingEmployees = new ArrayList<>();
+
+        for (Employee employee : employees) {
+            if (employee.getName().toLowerCase()
+                    .contains(name.toLowerCase())) {
+                matchingEmployees.add(employee);
+            }
+        }
+
+        return ResponseEntity.ok(matchingEmployees);
     }
 
 }
