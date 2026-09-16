@@ -44,4 +44,17 @@ public class EmployeeController {
         return ResponseEntity.notFound().build();
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Employee> updateEmployeeById(@PathVariable Long id, @RequestBody Employee updatedemployee){
+        for(Employee employee: employees){
+            if(employee.getId().equals(id)){
+                employee.setName(updatedemployee.getName());
+                employee.setEmail(updatedemployee.getEmail());
+                employee.setDepartment(updatedemployee.getDepartment());
+                return ResponseEntity.ok(employee);
+            }
+        }
+        return ResponseEntity.notFound().build();
+    }
+
 }
