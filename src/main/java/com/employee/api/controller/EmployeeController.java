@@ -33,4 +33,15 @@ public class EmployeeController {
     public ResponseEntity<List<Employee>> getAllEmployees() {
         return ResponseEntity.ok(employees);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Employee> getEmployeeById(@PathVariable Long id){
+        for(Employee employee: employees){
+            if(employee.getId().equals(id)){
+                return ResponseEntity.ok(employee);
+            }
+        }
+        return ResponseEntity.notFound().build();
+    }
+
 }
