@@ -1,6 +1,7 @@
 package com.employee.api.controller;
 
 import com.employee.api.model.Employee;
+import com.employee.api.service.EmployeeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,12 @@ import java.util.List;
 @RequestMapping("/employees")
 public class EmployeeController {
 
+    private final EmployeeService employeeService;
+
+    public EmployeeController(EmployeeService employeeService) {
+        this.employeeService = employeeService;
+    }
+
     private final List<Employee> employees = new ArrayList<>();
     private long nextId = 1;
 
@@ -20,11 +27,8 @@ public class EmployeeController {
     public ResponseEntity<Employee> createEmployee(
             @RequestBody Employee employee
     ) {
-        employee.setId(nextId);
-        nextId++;
-
-        employees.add(employee);
-
+        Employee createdEmployee =
+                employeeService.createEmployee(employee);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(employee);
@@ -32,46 +36,38 @@ public class EmployeeController {
 
     @GetMapping
     public ResponseEntity<List<Employee>> getAllEmployees() {
+        List<Employee> employees = employeeService.getAllEmployees();
         return ResponseEntity.ok(employees);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Employee> getEmployeeById(@PathVariable Long id){
-        for(Employee employee: employees){
-            if(employee.getId().equals(id)){
-                return ResponseEntity.ok(employee);
-            }
+        Employee employee = employeeService.getEmployeeById(id);
+        if(employee != null){
+            return ResponseEntity.ok(employee);
         }
         return ResponseEntity.notFound().build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Employee> updateEmployeeById(@PathVariable Long id, @RequestBody Employee updatedemployee){
-        for(Employee employee: employees){
-            if(employee.getId().equals(id)){
-                employee.setName(updatedemployee.getName());
-                employee.setEmail(updatedemployee.getEmail());
-                employee.setDepartment(updatedemployee.getDepartment());
-                return ResponseEntity.ok(employee);
-            }
+    public ResponseEntity<Employee> updateEmployeeById(@PathVariable Long id, @RequestBody Employee updatedEmployee){
+        Employee employee = employeeService.updateEmployeeById(id,updatedEmployee);
+        if(employee != null){
+            return ResponseEntity.ok(employee);
         }
         return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Employee> deleteEmployeeById(@PathVariable Long id){
-        Employee employeeToDelete = null;
+    public ResponseEntity<Void> deleteEmployeeById(
+            @PathVariable Long id) {
 
-        for(Employee employee: employees){
-            if(employee.getId().equals(id)){
-                employeeToDelete = employee;
-                break;
-            }
-        }
-        if (employeeToDelete != null) {
-            employees.remove(employeeToDelete);
+        boolean deleted = employeeService.deleteEmployeeById(id);
+
+        if (deleted) {
             return ResponseEntity.noContent().build();
         }
+
         return ResponseEntity.notFound().build();
     }
 
@@ -79,16 +75,9 @@ public class EmployeeController {
     public ResponseEntity<List<Employee>> searchEmployeesByName(
             @RequestParam String name) {
 
-        List<Employee> matchingEmployees = new ArrayList<>();
+        List<Employee> searchEmployeeByName = employeeService.searchEmployeesByName(name);
 
-        for (Employee employee : employees) {
-            if (employee.getName().toLowerCase()
-                    .contains(name.toLowerCase())) {
-                matchingEmployees.add(employee);
-            }
-        }
-
-        return ResponseEntity.ok(matchingEmployees);
+        return ResponseEntity.ok(searchEmployeeByName);
     }
 
 }
