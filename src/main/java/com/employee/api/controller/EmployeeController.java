@@ -2,6 +2,7 @@ package com.employee.api.controller;
 
 import com.employee.api.model.Employee;
 import com.employee.api.service.EmployeeService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class EmployeeController {
 
     @PostMapping
     public ResponseEntity<Employee> createEmployee(
-            @RequestBody Employee employee
+            @Valid @RequestBody Employee employee
     ) {
         Employee createdEmployee =
                 employeeService.createEmployee(employee);
@@ -50,7 +51,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Employee> updateEmployeeById(@PathVariable Long id, @RequestBody Employee updatedEmployee){
+    public ResponseEntity<Employee> updateEmployeeById(@PathVariable Long id, @Valid @RequestBody Employee updatedEmployee){
         Employee employee = employeeService.updateEmployeeById(id,updatedEmployee);
         if(employee != null){
             return ResponseEntity.ok(employee);
