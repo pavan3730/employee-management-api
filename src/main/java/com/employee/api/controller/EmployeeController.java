@@ -44,32 +44,20 @@ public class EmployeeController {
     @GetMapping("/{id}")
     public ResponseEntity<Employee> getEmployeeById(@PathVariable Long id){
         Employee employee = employeeService.getEmployeeById(id);
-        if(employee != null){
-            return ResponseEntity.ok(employee);
-        }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(employee);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Employee> updateEmployeeById(@PathVariable Long id, @Valid @RequestBody Employee updatedEmployee){
         Employee employee = employeeService.updateEmployeeById(id,updatedEmployee);
-        if(employee != null){
-            return ResponseEntity.ok(employee);
-        }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(employee);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEmployeeById(
             @PathVariable Long id) {
-
-        boolean deleted = employeeService.deleteEmployeeById(id);
-
-        if (deleted) {
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.notFound().build();
+        employeeService.deleteEmployeeById(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/search")
