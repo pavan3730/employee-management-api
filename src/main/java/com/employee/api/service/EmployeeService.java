@@ -1,5 +1,6 @@
 package com.employee.api.service;
 
+import com.employee.api.exception.EmployeeNotFoundException;
 import com.employee.api.model.Employee;
 import org.springframework.stereotype.Service;
 
@@ -31,29 +32,27 @@ public class EmployeeService{
                 return employee;
             }
         }
-        return null;
+        throw new EmployeeNotFoundException(
+                "Employee not found with ID: " + id
+        );
     }
 
-    public Employee updateEmployeeById(Long id, Employee updatedEmployee){
-        for (Employee employee : employees){
-            if (employee.getId().equals(id)){
-                employee.setName(updatedEmployee.getName());
-                employee.setEmail(updatedEmployee.getEmail());
-                employee.setDepartment(updatedEmployee.getDepartment());
-                return employee;
-            }
-        }
-        return null;
+    public Employee updateEmployeeById(
+            Long id,
+            Employee updatedEmployee) {
+
+        Employee employee = getEmployeeById(id);
+
+        employee.setName(updatedEmployee.getName());
+        employee.setEmail(updatedEmployee.getEmail());
+        employee.setDepartment(updatedEmployee.getDepartment());
+
+        return employee;
     }
 
-    public boolean deleteEmployeeById(Long id) {
+    public void deleteEmployeeById(Long id) {
         Employee employeeToDelete = getEmployeeById(id);
-
-        if (employeeToDelete == null) {
-            return false;
-        }
         employees.remove(employeeToDelete);
-        return true;
     }
 
     public List<Employee> searchEmployeesByName(String name) {
