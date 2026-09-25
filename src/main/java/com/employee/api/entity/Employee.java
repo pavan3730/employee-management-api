@@ -1,16 +1,27 @@
-package com.employee.api.model;
+package com.employee.api.entity;
 
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-
+import jakarta.persistence.Column;
+@Entity
+@Table(name = "employees")
 public class Employee {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotBlank(message = "Name is required")
+    @Column(name = "name", nullable = false, length = 100)
     private String name;
     @NotBlank(message = "Email is required")
-    @Email(message = "Email must be valid")
+    @Email(
+            regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
+            message = "Email must be valid"
+    )
+    @Column(name = "email", nullable = false, unique = true, length = 255)
     private String email;
     @NotBlank(message = "Department is required")
+    @Column(name = "department", nullable = false, length = 100)
     private String department;
 
     public Employee() {

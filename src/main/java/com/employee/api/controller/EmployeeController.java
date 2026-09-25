@@ -1,6 +1,6 @@
 package com.employee.api.controller;
 
-import com.employee.api.model.Employee;
+import com.employee.api.entity.Employee;
 import com.employee.api.service.EmployeeService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
