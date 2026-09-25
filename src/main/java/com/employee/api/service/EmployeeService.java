@@ -1,7 +1,7 @@
 package com.employee.api.service;
 
 import com.employee.api.exception.EmployeeNotFoundException;
-import com.employee.api.model.Employee;
+import com.employee.api.entity.Employee;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
