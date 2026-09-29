@@ -2,35 +2,32 @@ package com.employee.api.service;
 
 import com.employee.api.exception.EmployeeNotFoundException;
 import com.employee.api.entity.Employee;
+import com.employee.api.repository.EmployeeRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EmployeeService{
 
-    private final List<Employee> employees = new ArrayList<>();
-    private long nextId = 1;
+    private final EmployeeRepository employeeRepository;
+    public EmployeeService(EmployeeRepository employeeRepository) {
+        this.employeeRepository = employeeRepository;
+    }
 
     public Employee createEmployee(Employee employee) {
-        employee.setId(nextId);
-        nextId++;
-
-        employees.add(employee);
-
-        return employee;
+        return employeeRepository.save(employee);
     }
 
     public List<Employee> getAllEmployees(){
-        return employees;
+        return employeeRepository.findAll();
     }
 
     public Employee getEmployeeById(Long id){
-        for (Employee employee : employees){
-            if(employee.getId().equals(id)){
-                return employee;
-            }
+        Optional<Employee> employee = employeeRepository.findById(id);
+
+        if(employee.isPresent()){
+            return employee.get();
         }
         throw new EmployeeNotFoundException(
                 "Employee not found with ID: " + id
@@ -41,29 +38,21 @@ public class EmployeeService{
             Long id,
             Employee updatedEmployee) {
 
-        Employee employee = getEmployeeById(id);
+        Employee existingEmployee = getEmployeeById(id);
 
-        employee.setName(updatedEmployee.getName());
-        employee.setEmail(updatedEmployee.getEmail());
-        employee.setDepartment(updatedEmployee.getDepartment());
+        existingEmployee.setName(updatedEmployee.getName());
+        existingEmployee.setEmail(updatedEmployee.getEmail());
+        existingEmployee.setDepartment(updatedEmployee.getDepartment());
 
-        return employee;
+        return employeeRepository.save(existingEmployee);
     }
 
     public void deleteEmployeeById(Long id) {
-        Employee employeeToDelete = getEmployeeById(id);
-        employees.remove(employeeToDelete);
+        Employee employee = getEmployeeById(id);
+        employeeRepository.delete(employee);
     }
 
     public List<Employee> searchEmployeesByName(String name) {
-        List<Employee> matchingEmployees = new ArrayList<>();
-
-        for (Employee employee : employees) {
-            if (employee.getName().toLowerCase()
-                    .contains(name.toLowerCase())) {
-                matchingEmployees.add(employee);
-            }
-        }
-        return matchingEmployees;
+        return employeeRepository.findByNameContainingIgnoreCase(name);
     }
 }
