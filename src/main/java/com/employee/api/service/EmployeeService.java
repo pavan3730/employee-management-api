@@ -1,5 +1,6 @@
 package com.employee.api.service;
 
+import com.employee.api.exception.DuplicateEmployeeEmailException;
 import com.employee.api.exception.EmployeeNotFoundException;
 import com.employee.api.entity.Employee;
 import com.employee.api.repository.EmployeeRepository;
@@ -16,6 +17,13 @@ public class EmployeeService{
     }
 
     public Employee createEmployee(Employee employee) {
+
+        Optional<Employee> existingEmployee = employeeRepository.findByEmailIgnoreCase(employee.getEmail());
+        if (existingEmployee.isPresent()){
+            throw new DuplicateEmployeeEmailException(
+                    "An employee with this email already exists"
+            );
+        }
         return employeeRepository.save(employee);
     }
 
@@ -40,9 +48,23 @@ public class EmployeeService{
 
         Employee existingEmployee = getEmployeeById(id);
 
+        Optional<Employee> employeeWithEmail =
+                employeeRepository.findByEmailIgnoreCase(
+                        updatedEmployee.getEmail()
+                );
+
+        if (employeeWithEmail.isPresent()
+                && !employeeWithEmail.get().getId().equals(id)) {
+
+            throw new DuplicateEmployeeEmailException(
+                    "An employee with this email already exists"
+            );
+        }
+
         existingEmployee.setName(updatedEmployee.getName());
         existingEmployee.setEmail(updatedEmployee.getEmail());
         existingEmployee.setDepartment(updatedEmployee.getDepartment());
+
 
         return employeeRepository.save(existingEmployee);
     }
