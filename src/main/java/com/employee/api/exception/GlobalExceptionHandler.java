@@ -43,4 +43,18 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(response);
     }
+
+    @ExceptionHandler(DuplicateEmployeeEmailException.class)
+    public ResponseEntity<Map<String, Object>> handleDuplicateEmployeeEmail(
+            DuplicateEmployeeEmailException exception) {
+
+        Map<String, Object> response = new LinkedHashMap<>();
+
+        response.put("status", HttpStatus.CONFLICT.value());
+        response.put("message", exception.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
 }
