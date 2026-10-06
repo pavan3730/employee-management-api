@@ -1,10 +1,14 @@
 package com.employee.api.service;
 
+import com.employee.api.dto.EmployeeRequest;
+import com.employee.api.dto.EmployeeResponse;
+import com.employee.api.entity.Employee;
 import com.employee.api.exception.DuplicateEmployeeEmailException;
 import com.employee.api.exception.EmployeeNotFoundException;
-import com.employee.api.entity.Employee;
+import com.employee.api.mapper.EmployeeMapper;
 import com.employee.api.repository.EmployeeRepository;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -12,45 +16,58 @@ import java.util.Optional;
 public class EmployeeService{
 
     private final EmployeeRepository employeeRepository;
-    public EmployeeService(EmployeeRepository employeeRepository) {
+    private final EmployeeMapper employeeMapper;
+    public EmployeeService(EmployeeRepository employeeRepository, EmployeeMapper employeeMapper) {
         this.employeeRepository = employeeRepository;
+        this.employeeMapper = employeeMapper;
     }
 
-    public Employee createEmployee(Employee employee) {
+    public EmployeeResponse createEmployee(EmployeeRequest request) {
 
-        Optional<Employee> existingEmployee = employeeRepository.findByEmailIgnoreCase(employee.getEmail());
+        Optional<Employee> existingEmployee = employeeRepository.findByEmailIgnoreCase(request.getEmail());
         if (existingEmployee.isPresent()){
             throw new DuplicateEmployeeEmailException(
                     "An employee with this email already exists"
             );
         }
-        return employeeRepository.save(employee);
+        Employee employee = employeeMapper.toEntity(request);
+
+        Employee savedEmployee = employeeRepository.save(employee);
+
+        return employeeMapper.toResponse(savedEmployee);
     }
 
-    public List<Employee> getAllEmployees(){
-        return employeeRepository.findAll();
+    public List<EmployeeResponse> getAllEmployees(){
+
+        List<Employee> employees = employeeRepository.findAll();
+        return employeeMapper.toResponseList(employees);
     }
 
-    public Employee getEmployeeById(Long id){
-        Optional<Employee> employee = employeeRepository.findById(id);
+    private Employee findEmployeeEntityById(Long id) {
 
-        if(employee.isPresent()){
-            return employee.get();
-        }
-        throw new EmployeeNotFoundException(
-                "Employee not found with ID: " + id
-        );
+        return employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException(
+                        "Employee not found with ID: " + id
+                ));
     }
 
-    public Employee updateEmployeeById(
+    public EmployeeResponse getEmployeeById(Long id) {
+
+        Employee employee = findEmployeeEntityById(id);
+
+        return employeeMapper.toResponse(employee);
+    }
+
+    public EmployeeResponse updateEmployeeById(
             Long id,
-            Employee updatedEmployee) {
+            EmployeeRequest request) {
 
-        Employee existingEmployee = getEmployeeById(id);
+        Employee existingEmployee =
+                findEmployeeEntityById(id);
 
         Optional<Employee> employeeWithEmail =
                 employeeRepository.findByEmailIgnoreCase(
-                        updatedEmployee.getEmail()
+                        request.getEmail()
                 );
 
         if (employeeWithEmail.isPresent()
@@ -61,20 +78,24 @@ public class EmployeeService{
             );
         }
 
-        existingEmployee.setName(updatedEmployee.getName());
-        existingEmployee.setEmail(updatedEmployee.getEmail());
-        existingEmployee.setDepartment(updatedEmployee.getDepartment());
+        employeeMapper.updateEntity(request, existingEmployee);
 
+        Employee savedEmployee =
+                employeeRepository.save(existingEmployee);
 
-        return employeeRepository.save(existingEmployee);
+        return employeeMapper.toResponse(savedEmployee);
     }
-
     public void deleteEmployeeById(Long id) {
-        Employee employee = getEmployeeById(id);
+
+        Employee employee = findEmployeeEntityById(id);
+
         employeeRepository.delete(employee);
     }
 
-    public List<Employee> searchEmployeesByName(String name) {
-        return employeeRepository.findByNameContainingIgnoreCase(name);
+    public List<EmployeeResponse> searchEmployeesByName(String name) {
+        List<Employee> employees =
+                employeeRepository.findByNameContainingIgnoreCase(name);
+
+        return employeeMapper.toResponseList(employees);
     }
 }
