@@ -1,5 +1,6 @@
 package com.employee.api.controller;
 
+import com.employee.api.dto.EmployeePatchRequest;
 import com.employee.api.dto.EmployeeRequest;
 import com.employee.api.dto.EmployeeResponse;
 import com.employee.api.service.EmployeeService;
@@ -53,6 +54,17 @@ public class EmployeeController {
 
         EmployeeResponse updatedEmployee =
                 employeeService.updateEmployeeById(id, request);
+
+        return ResponseEntity.ok(updatedEmployee);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<EmployeeResponse> partiallyUpdateEmployee(
+            @PathVariable Long id,
+            @Valid @RequestBody EmployeePatchRequest request) {
+
+        EmployeeResponse updatedEmployee =
+                employeeService.partiallyUpdateEmployee(id, request);
 
         return ResponseEntity.ok(updatedEmployee);
     }
