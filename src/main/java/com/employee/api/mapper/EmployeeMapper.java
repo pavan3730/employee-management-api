@@ -1,5 +1,6 @@
 package com.employee.api.mapper;
 
+import com.employee.api.dto.EmployeePatchRequest;
 import com.employee.api.dto.EmployeeRequest;
 import com.employee.api.dto.EmployeeResponse;
 import com.employee.api.entity.Employee;
@@ -51,5 +52,22 @@ public class EmployeeMapper {
         employee.setName(request.getName());
         employee.setEmail(request.getEmail());
         employee.setDepartment(request.getDepartment());
+    }
+
+    public void updateEntityPartially(
+            EmployeePatchRequest request,
+            Employee employee) {
+
+        if (request.getName() != null) {
+            employee.setName(request.getName());
+        }
+
+        if (request.getEmail() != null) {
+            employee.setEmail(request.getEmail());
+        }
+
+        if (request.getDepartment() != null) {
+            employee.setDepartment(request.getDepartment());
+        }
     }
 }

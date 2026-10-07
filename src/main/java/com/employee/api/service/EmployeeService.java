@@ -1,5 +1,6 @@
 package com.employee.api.service;
 
+import com.employee.api.dto.EmployeePatchRequest;
 import com.employee.api.dto.EmployeeRequest;
 import com.employee.api.dto.EmployeeResponse;
 import com.employee.api.entity.Employee;
@@ -79,6 +80,40 @@ public class EmployeeService{
         }
 
         employeeMapper.updateEntity(request, existingEmployee);
+
+        Employee savedEmployee =
+                employeeRepository.save(existingEmployee);
+
+        return employeeMapper.toResponse(savedEmployee);
+    }
+
+    public EmployeeResponse partiallyUpdateEmployee(
+            Long id,
+            EmployeePatchRequest request) {
+
+        Employee existingEmployee =
+                findEmployeeEntityById(id);
+
+        if (request.getEmail() != null) {
+
+            Optional<Employee> employeeWithEmail =
+                    employeeRepository.findByEmailIgnoreCase(
+                            request.getEmail()
+                    );
+
+            if (employeeWithEmail.isPresent()
+                    && !employeeWithEmail.get().getId().equals(id)) {
+
+                throw new DuplicateEmployeeEmailException(
+                        "An employee with this email already exists"
+                );
+            }
+        }
+
+        employeeMapper.updateEntityPartially(
+                request,
+                existingEmployee
+        );
 
         Employee savedEmployee =
                 employeeRepository.save(existingEmployee);
